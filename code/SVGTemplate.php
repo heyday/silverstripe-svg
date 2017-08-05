@@ -1,7 +1,15 @@
 <?php
 
+namespace SilverStripeSVG;
+
+
+use SilverStripe\View\ViewableData;
+use DOMDocument;
+
+
 /**
  * Class SVGTemplate
+ * @package SilverStripeSVG
  */
 class SVGTemplate extends ViewableData
 {
@@ -74,7 +82,7 @@ class SVGTemplate extends ViewableData
         $this->name = $name;
         $this->id = $id;
         $this->extra_classes = $this->stat('default_extra_classes');
-        $this->extra_classes[] = 'svg-'.$this->name;
+        $this->extra_classes[] = 'svg-' . $this->name;
         $this->subfolders = array();
         $this->out = new DOMDocument();
         $this->out->formatOutput = true;
@@ -190,7 +198,7 @@ class SVGTemplate extends ViewableData
         }
 
         if ($this->width) {
-            $root->setAttribute('width',  $this->width . 'px');
+            $root->setAttribute('width', $this->width . 'px');
         }
 
         if ($this->height) {
@@ -211,6 +219,7 @@ class SVGTemplate extends ViewableData
             }
         }
 
+
         $out->normalizeDocument();
         return $out->saveHTML();
     }
@@ -220,11 +229,11 @@ class SVGTemplate extends ViewableData
      */
     public function forTemplate()
     {
-
         $path = BASE_PATH . DIRECTORY_SEPARATOR;
         $path .= ($this->custom_base_path) ? $this->custom_base_path : $this->stat('base_path');
         $path .= DIRECTORY_SEPARATOR;
-        foreach($this->subfolders as $subfolder) {
+
+        foreach ($this->subfolders as $subfolder) {
             $path .= $subfolder . DIRECTORY_SEPARATOR;
         }
         $path .= (strpos($this->name, ".") === false) ? $this->name . '.' . $this->stat('extension') : $this->name;

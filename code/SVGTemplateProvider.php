@@ -1,7 +1,14 @@
 <?php
 
+
+namespace SilverStripeSVG;
+
+use SilverStripe\View\TemplateGlobalProvider;
+
+
 /**
  * Class SVGTemplateProvider
+ * @package SilverStripeSVG
  */
 class SVGTemplateProvider implements TemplateGlobalProvider
 {
