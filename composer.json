@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SilverStripeSVG": "code/"
+            "SilverStripeSVG\\": "code/"
         }
     }
 }
