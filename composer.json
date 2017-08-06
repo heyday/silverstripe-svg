@@ -1,5 +1,5 @@
 {
-    "name": "stevie-mayhew/silverstripe-svg",
+    "name": "heyday/silverstripe-svg",
     "type": "silverstripe-module",
     "description": "Basic SVG support for SilverStripe",
     "keywords": ["silverstripe", "svg", "template"],
