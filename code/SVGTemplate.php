@@ -74,6 +74,11 @@ class SVGTemplate extends ViewableData
     private $subfolders;
 
     /**
+     * @var string
+     */
+     private $isDev;
+
+    /**
      * @param string $name
      * @param string $id
      */
@@ -86,6 +91,8 @@ class SVGTemplate extends ViewableData
         $this->subfolders = array();
         $this->out = new DOMDocument();
         $this->out->formatOutput = true;
+        // this is used to avoid SSL checking for self assigned certificate
+        $this->isDev = (getenv('SS_ENVIRONMENT_TYPE') == 'dev') ? TRUE : FALSE;
     }
 
     /**
@@ -171,24 +178,57 @@ class SVGTemplate extends ViewableData
     }
 
     /**
+     * @param $url
+     * @return string
+     */
+     private function getResourceAsString($url)
+     {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        // specify that expected result should be a string
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        // if in dev environement don't check ssl certificate
+        if($this->isDev) {
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        }
+        $resource = curl_exec($curl);
+        curl_close ($curl);
+
+        return $resource;
+     }
+
+    /**
      * @param $filePath
      * @return string
      */
-    private function process($filePath)
+    private function process($filePath, $external)
     {
-
-        if (!file_exists($filePath)) {
+        if (!file_exists($filePath) && !$external) {
             return false;
         }
 
+        // create dom container
         $out = new DOMDocument();
-        $out->load($filePath);
+
+        // this is if the passed url is a remote url
+        if($external == true) {
+            // request the distant url and get the result as a string
+            $resource = $this->getResourceAsString($filePath);
+            // if there is no result just stop the process
+            if(!$resource) return false;
+            // load the sended resource as XML otherwise
+            $out->loadXML($resource);
+        } else {
+            $out->load($filePath);
+        }
 
         if (!is_object($out) || !is_object($out->documentElement)) {
             return false;
         }
 
         $root = $out->documentElement;
+
         if ($this->fill) {
             $root->setAttribute('fill', $this->fill);
         }
@@ -219,7 +259,6 @@ class SVGTemplate extends ViewableData
             }
         }
 
-
         $out->normalizeDocument();
         return $out->saveHTML();
     }
@@ -229,16 +268,24 @@ class SVGTemplate extends ViewableData
      */
     public function forTemplate()
     {
-        $path = BASE_PATH . DIRECTORY_SEPARATOR;
-        $path .= ($this->custom_base_path) ? $this->custom_base_path : $this->stat('base_path');
-        $path .= DIRECTORY_SEPARATOR;
+        $path = '';
+        $isExternal = false;
 
-        foreach ($this->subfolders as $subfolder) {
-            $path .= $subfolder . DIRECTORY_SEPARATOR;
+        // this check if the url is distant (start with http^)
+        if (strpos($this->name, 'http') === 0) {
+           $path = $this->name;
+           $isExternal = true;
+        } else {
+            $path = BASE_PATH . DIRECTORY_SEPARATOR;
+            $path .= ($this->custom_base_path) ? $this->custom_base_path : $this->stat('base_path');
+            $path .= DIRECTORY_SEPARATOR;
+
+            foreach ($this->subfolders as $subfolder) {
+                $path .= $subfolder . DIRECTORY_SEPARATOR;
+            }
+            $path .= (strpos($this->name, ".") === false) ? $this->name . '.' . $this->stat('extension') : $this->name;
         }
-        $path .= (strpos($this->name, ".") === false) ? $this->name . '.' . $this->stat('extension') : $this->name;
 
-        return $this->process($path);
-
+        return $this->process($path, $isExternal);
     }
 }
