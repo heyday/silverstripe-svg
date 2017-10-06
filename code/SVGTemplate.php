@@ -218,7 +218,7 @@ class SVGTemplate extends ViewableData
             // if there is no result just stop the process
             if(!$resource) return false;
             // load the sended resource as XML otherwise
-            $out->loadXML($resource);
+            @$out->loadXML($resource);
         } else {
             $out->load($filePath);
         }
