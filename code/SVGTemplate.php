@@ -92,7 +92,8 @@ class SVGTemplate extends ViewableData
         $this->out = new DOMDocument();
         $this->out->formatOutput = true;
         // this is used to avoid SSL checking for self assigned certificate
-        $this->isDev = (getenv('SS_ENVIRONMENT_TYPE') == 'dev') ? TRUE : FALSE;
+        $this->isLive = (getenv('SS_ENVIRONMENT_TYPE') !== 'live') ? FALSE : TRUE;
+
     }
 
     /**
@@ -188,7 +189,7 @@ class SVGTemplate extends ViewableData
         // specify that expected result should be a string
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         // if in dev environement don't check ssl certificate
-        if($this->isDev) {
+        if(!$this->isLive) {
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
         }
