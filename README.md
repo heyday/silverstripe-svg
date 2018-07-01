@@ -49,6 +49,9 @@ There also helper functions for width, height, size, fill, adding extra classes,
 <!-- add class -->
 {$SVG('name').extraClass('awesome-svg')}
 
+<!-- add attribute -->
+{$SVG('name').extraAttribute('preserveAspectRatio/xMinYMid')}
+
 <!-- specify a custom base path -->
 {$SVG('name').customBasePath('assets/Uploads/SVG')}
 
