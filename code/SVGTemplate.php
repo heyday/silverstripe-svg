@@ -34,6 +34,12 @@ class SVGTemplate extends ViewableData
     private static $default_extra_classes = array();
 
     /**
+     * @config
+     * @var array
+     */
+    private static $default_extra_attribute = array();
+
+    /**
      * @var string
      */
     private $path;
@@ -71,6 +77,11 @@ class SVGTemplate extends ViewableData
     /**
      * @var array
      */
+    private $extraAttribute;
+
+    /**
+     * @var array
+     */
     private $subfolders;
 
     /**
@@ -88,6 +99,7 @@ class SVGTemplate extends ViewableData
         $this->id = $id;
         $this->extra_classes = $this->stat('default_extra_classes');
         $this->extra_classes[] = 'svg-' . $this->name;
+        $this->extra_attribute = $this->stat('default_extra_attribute');
         $this->subfolders = array();
         $this->out = new DOMDocument();
         $this->out->formatOutput = true;
@@ -172,6 +184,16 @@ class SVGTemplate extends ViewableData
      * @param $class
      * @return $this
      */
+    public function extraAttribute($attrs)
+    {
+        $this->extra_attribute = $attrs;
+        return $this;
+    }
+
+    /**
+     * @param $class
+     * @return $this
+     */
     public function addSubfolder($folder)
     {
         $this->subfolders[] = trim($folder, DIRECTORY_SEPARATOR);
@@ -248,6 +270,11 @@ class SVGTemplate extends ViewableData
 
         if ($this->extra_classes) {
             $root->setAttribute('class', implode(' ', $this->extra_classes));
+        }
+
+        if ($this->extra_attribute) {
+            $attribute = explode('/', $this->extra_attribute);
+            $root->setAttribute($attribute[0], $attribute[1]);
         }
 
         foreach ($out->getElementsByTagName('svg') as $element) {
